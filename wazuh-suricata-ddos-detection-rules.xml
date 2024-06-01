@@ -1,0 +1,106 @@
+<group name="local,syslog,sshd,">
+ 
+    <rule id="100002" level="2">
+    <if_sid>86600</if_sid>
+    <field name="dest_port">80</field>
+    <field name="proto">^UDP$</field>
+    <description>UDP messages.</description>
+    <group>suricata,ids_research</group>
+  </rule>
+
+  <rule id="100003" level="3" frequency="20" timeframe="10" ignore="60">
+     <if_matched_sid>100002</if_matched_sid>
+    <description>Research: Large amount of UDP packets received in a short time frame. Possible UDP flood DDOS.</description>
+    <different_srcip />
+    <group>suricata,ids_research</group>
+  </rule>
+  
+  <rule id="100004" level="2">
+    <if_sid>86600</if_sid>
+    <field name="proto">^ICMP$</field>
+    <description>ICMP messages.</description>
+    <group>suricata,ids_research</group>
+  </rule>
+
+  <rule id="100005" level="3" frequency="20" timeframe="10" ignore="60">
+     <if_matched_sid>100004</if_matched_sid>
+    <description>Research: Large amount of ICMP packets received from different IP addresses in a short time frame. Possible ICMP flood DDOS.</description>
+    <different_srcip />
+    <group>suricata,ids_research</group>
+  </rule>
+  
+  <rule id="100006" level="2">
+    <if_sid>86600</if_sid>
+    <field name="tcp.syn">true</field>
+    <field name="tcp.tcp_flags">02</field>
+    <field name="tcp.state">syn_sent</field>
+    <description>TCP congestion notififcation.</description>
+    <group>suricata,ids_research</group>
+  </rule>
+
+  <rule id="100007" level="3" frequency="30" timeframe="10" ignore="60">
+     <if_matched_sid>100006</if_matched_sid>
+    <description>Research: Large amount of SYN packets received from different IP addresses in a short time frame. Possible SYN flood DDOS.</description>
+    <different_srcip />
+    <group>suricata,ids_research</group>
+  </rule>
+  
+  <rule id="100008" level="2">
+    <if_sid>86604</if_sid>
+    <field name="event_type">tls</field>
+    <description>TLS negotiation notification.</description>
+    <group>suricata,ids_research</group>
+  </rule>
+
+  <rule id="100009" level="3" frequency="30" timeframe="10" ignore="60">
+     <if_matched_sid>100008</if_matched_sid>
+    <description>Research: Large amount of TLS negotiation packets received from one IP addresses in a short time frame. Possible SSL/TLS DDOS attack.</description>
+    <same_srcip />
+    <group>suricata,ids_research</group>
+  </rule>
+  
+  <rule id="100010" level="2">
+    <if_sid>31122</if_sid>
+    <match>ApacheBench</match>
+    <description>ApacheBench request.</description>
+    <group>suricata,ids_research</group>
+  </rule>
+  
+  <rule id="100011" level="3" frequency="30" timeframe="10" ignore="60">
+    <if_matched_sid>100010</if_matched_sid>
+    <description>Research: Large amount of ApacheBenchmark requests in a short time frame. Possible HTTP flood attack.</description>
+    <same_srcip />
+    <group>suricata,ids_research</group>
+  </rule>
+  
+  <rule id="100012" level="2">
+    <if_sid>86602</if_sid>
+    <field name="event_type">http</field>
+    <field name="http.http_method">GET</field>
+    <field name="http.status">408</field>
+    <description>HTTP GET request timed out (408 error).</description>
+    <group>suricata,ids_research</group>
+  </rule>
+  
+  <rule id="100013" level="3" frequency="30" timeframe="10" ignore="60">
+    <if_matched_sid>100012</if_matched_sid>
+    <description>Research: Large amount of open HTTP GET request connections from multiple IP address in a short time frame. Possible Slowloris DDoS attack.</description>
+    <group>suricata,ids_research</group>
+  </rule>
+  
+  <rule id="100014" level="2">
+    <if_sid>86600</if_sid>
+    <field name="app_proto">http</field>
+    <field name="http.http_method">GET|POST</field>
+    <field name="http.http_user_agent">\.*siege</field>
+    <description>HTTP GET request timed out (408 error).</description>
+    <group>suricata,ids_research</group>
+  </rule>
+  
+  <rule id="100015" level="3" frequency="30" timeframe="10" ignore="60">
+    <if_matched_sid>100014</if_matched_sid>
+    <description>Research: Large amount of HTTP GET request connections from multiple IP address with the Siege user agent. Possible HTTP GET/POST DDoS attack.</description>
+    <group>suricata,ids_research</group>
+  </rule>
+  
+</group>
